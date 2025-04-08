@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>E-Dustbin System</title>
+  <link rel="stylesheet" href="d.css" />
+  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+</head>
+<body>
+
+<!-- Particle background -->
+<div id="particles-js"></div>
+
+<!-- Block selection container -->
+<div class="container block-selection" id="block-selection">
+  <h2>Select Block</h2>
+  <button onclick="selectBlock('A')">Block A</button>
+  <button onclick="openMap('A')">📍 Location</button><br>
+  
+  <button onclick="selectBlock('B')">Block B</button>
+  <button onclick="openMap('B')">📍 Location</button><br>
+  
+  <button onclick="selectBlock('C')">Block C</button>
+  <button onclick="openMap('C')">📍 Location</button><br>
+  
+  <button onclick="selectBlock('D')">Block D</button>
+  <button onclick="openMap('D')">📍 Location</button>
+</div>
+
+<!-- Dustbin container -->
+<div class="container dustbin-container" id="dustbin-container" style="display: none;">
+  <h2 id="block-title"></h2>
+  <div id="dustbin-list"></div>
+  <button onclick="backToBlocks()">Back</button>
+</div>
+
+<script>
+  particlesJS.load('particles-js', 'particles.json', function () {
+    console.log('particles.js loaded - callback');
+  });
+
+  function selectBlock(block) {
+    document.getElementById("block-selection").style.display = "none";
+    document.getElementById("dustbin-container").style.display = "block";
+    document.getElementById("block-title").innerText = `Dustbins in Block ${block}`;
+    loadDustbins(block);
+    startFakeNotifications(block);
+  }
+
+  function backToBlocks() {
+    document.getElementById("dustbin-container").style.display = "none";
+    document.getElementById("block-selection").style.display = "block";
+  }
+
+  function showNotification(message) {
+    const notif = document.createElement("div");
+    notif.className = "fake-notif";
+    notif.innerText = `⚠️ Alert: ${message} is full!`;
+    document.body.appendChild(notif);
+
+    setTimeout(() => {
+      notif.remove();
+    }, 4000);
+  }
+
+  function startFakeNotifications(block) {
+    setInterval(() => {
+      const randBin = Math.ceil(Math.random() * 4);
+      showNotification(`Dustbin ${block}${randBin}`);
+    }, 3000);
+  }
+
+  function loadDustbins(block) {
+    const dustbinList = document.getElementById("dustbin-list");
+    dustbinList.innerHTML = "";
+
+    for (let i = 1; i <= 4; i++) {
+      let level = Math.floor(Math.random() * 101);
+      let color = level > 75 ? "red" : level > 40 ? "orange" : "green";
+      let dustbinID = `Dustbin ${block}${i}`;
+
+      let dustbin = document.createElement("div");
+      dustbin.className = "dustbin";
+      dustbin.id = `dustbin-${block}${i}`;
+      dustbin.innerHTML = `
+        <div class="waste" style="height: ${level}%; background-color: ${color};"></div>
+        <div class="label">
+          <span class="id">${dustbinID}</span><br>
+          <span class="level">${level}%</span>
+        </div>
+      `;
+
+      if (level > 75) {
+        showNotification(dustbinID);
+      }
+
+      dustbin.addEventListener('click', () => {
+        level = Math.min(100, level + 10);
+        const waste = dustbin.querySelector('.waste');
+        const levelText = dustbin.querySelector('.level');
+        waste.style.height = `${level}%`;
+        waste.style.backgroundColor = level > 75 ? "red" : level > 40 ? "orange" : "green";
+        levelText.innerText = `${level}%`;
+
+        if (level > 75) {
+          showNotification(dustbinID);
+        }
+      });
+
+      dustbinList.appendChild(dustbin);
+    }
+  }
+
+  function openMap(block) {
+    let locationURL = "";
+
+    // Replace these lat/lng with real dustbin coordinates
+    switch (block) {
+      case 'A':
+        locationURL = "https://www.google.com/maps?q=26.9124,75.7873"; break;
+      case 'B':
+        locationURL = "https://www.google.com/maps?q=28.6139,77.2090"; break;
+      case 'C':
+        locationURL = "https://www.google.com/maps?q=19.0760,72.8777"; break;
+      case 'D':
+        locationURL = "https://www.google.com/maps?q=13.0827,80.2707"; break;
+    }
+
+    window.open(locationURL, "_blank");
+  }
+</script>
+
+</body>
+</html>
